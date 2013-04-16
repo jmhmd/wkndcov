@@ -18,7 +18,7 @@ angular.module('wkndcov.controllers', [])
     $scope.onTodayTemplate = function(){
       return [
         {
-          name: "PA-1",
+          name: "PA (1st team)",
           role: 'PA',
           team: "",
           status: "",
@@ -27,7 +27,7 @@ angular.module('wkndcov.controllers', [])
           secondaryNotes: 0
         },
         {
-          name: "PA-2",
+          name: "PA (2nd team)",
           role: 'PA',
           team: "",
           status: "",
@@ -38,24 +38,38 @@ angular.module('wkndcov.controllers', [])
       ];
     };
     $scope.onToday = $scope.onTodayTemplate();
+    $scope.lonelyTeam = '';
     
 		// watch for changes
     $scope.$watch('census', function(){
       console.log('census changed');
       $scope.redistribute();
     }, true);
-    $scope.$watch('onToday', function(){
-      console.log('intern object changed');
-      $scope.redistribute();
+    $scope.$watch('onToday', function(oldVal, newVal){
+      var oldTeams = oldVal.map(function(person){ return person.writingFor; }).join();
+      var newTeams = newVal.map(function(person){ return person.writingFor; }).join();
+      if (oldTeams !== newTeams){
+        console.log('team assignment changed');
+      	$scope.redistribute();
+      }
     }, true);
+    
+    $scope.teamWatch = function(){
+  		console.log('watching');
+      return $scope.onToday.map(function(person){ return person.writingFor; });
+    };
     
     $scope.redistribute = function(){
       // find lonely team
       var teams = [],
           noteWriters = [],
+          postCall = [],
+          onCall = [],
+          PA = [],
           subIs = [],
           counts = {},
           lonelyTeam = [],
+          lonelyIntern = '',
           census = $scope.census;
       
       // pull out teams with map, then filter out empty/unassigned
@@ -84,6 +98,9 @@ angular.module('wkndcov.controllers', [])
       if(lonelyTeam.length !== 1){
         console.log('too many lonely teams', lonelyTeam);
         return false;
+      } else {
+        lonelyTeam = lonelyTeam[0];
+        $scope.lonelyTeam = lonelyTeam;
       }
       // Ok, we have one lonely team, check for censuses
       if(census.A < 1 || census.B < 1 || census.C < 1 || census.Y < 1){
@@ -96,8 +113,79 @@ angular.module('wkndcov.controllers', [])
         return false;
       }
       // Passed all the checks, should be good to go
-      console.log('Feelin alright');
-      	
+      // split censuses
+      lonelyIntern = noteWriters.filter(function(person){ return person.writingFor === lonelyTeam; });
+      // give half of lonelyTeam to lonelyIntern (round down)
+      lonelyIntern.primaryNotes = census[lonelyTeam] % 2 === 1 ? (census[lonelyTeam] / 2) - 0.5 : census[lonelyTeam]/2;
+      // algo: Post call intern 1 -> post call intern 2 -> on call intern 1
+      // -> on call intern 2 -> on call intern 3 -> PA -> post call intern 1 -> post call intern 2, etc. etc. 
+      // INTERN D should be either post call intern 1 or on call intern 1 (depending on where they are in their call cycle).
+      // Assign positions in round robin
+      postCall = noteWriters.filter(function(person){ return person.status = 'post-call'; });
+      onCall = noteWriters.filter(function(person){ return person.status = 'on-call'; });
+      PA = noteWriters.filter(function(person){ return person.role = 'PA'; });
+      
+      // sort lonelyIntern to first position in group
+      function comparator(a, b) {
+        if (a.name === lonelyIntern.name) return -1;
+        return 0;
+      }
+      if(lonelyIntern.status === 'on-call'){ onCall.sort(comparator); }
+      if(lonelyIntern.status === 'post-call'){ postCall.sort(comparator); }
+      
+      // distribute
+      console.log('distribute');
+      var toDistribute = census[lonelyTeam] - lonelyIntern.primaryNotes;
+      while(toDistribute > 0){
+        angular.forEach(postCall, function(intern){
+          if(toDistribute < 1) return;
+          intern.secondaryNotes += 1;
+          toDistribute -= 1;
+        });
+        if(toDistribute < 1) break;
+        angular.forEach(onCall, function(intern){
+          if(toDistribute < 1) return;
+          intern.secondaryNotes += 1;
+          toDistribute -= 1;
+        });
+        if(toDistribute < 1) break;
+        PA[0].secondaryNotes += 1;
+        toDistribute -= 1;
+      }
+      // now we have three arrays of people with distributed notes for lonely teams
+      // split up censuses for rest of teams
+      // rejoin all the notewriters now with extra notes distributed
+      noteWriters = postCall.concat(onCall,PA);
+      console.log('distributed lonely',noteWriters);
+      // split rest of teams
+      angular.forEach(census, function(census,team){
+        if(team !== lonelyTeam){ // lonelyTeam already done
+          var half = (census % 2 === 1) ? census/2 + 0.5 : census/2; // rounding up
+          var toGive = census;
+          // find interns
+          var thisTeam = noteWriters.filter(function(person){ return person.writingFor === team; })
+          													.map(function(person){ return person.name; });
+          angular.forEach(noteWriters, function(person){
+            if(thisTeam.indexOf(person.name) > -1){
+              person.primaryNotes = (toGive === census)? toGive - half : toGive; // lesser half first
+              toGive = half;
+            }
+          });
+        }
+      });
+      console.log('distributed teams', noteWriters);
+			// now noteWriters should be all set. copy onToday, update, and then set onToday
+      var onTodayCopy = angular.copy($scope.onToday);
+			angular.forEach(noteWriters, function(updatedPerson){
+        // find matching record, overwrite
+        angular.forEach(onTodayCopy, function(person){
+          if(person.name === updatedPerson.name){
+            person.primaryNotes = updatedPerson.primaryNotes;
+            person.secondaryNotes = updatedPerson.secondaryNotes;
+          }
+        });
+      });
+      $scope.onToday = onTodayCopy;
     };
     
     $scope.getOnToday = function(){

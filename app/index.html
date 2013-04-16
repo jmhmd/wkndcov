@@ -39,10 +39,22 @@
       </thead>
       <tbody>
         <tr>
-          <td><input type="text" ng-model="census.A"></td>
-          <td><input type="text" ng-model="census.B"></td>
-          <td><input type="text" ng-model="census.C"></td>
-          <td><input type="text" ng-model="census.Y"></td>
+          <td>
+            Total: <input type="text" ng-model="census.A">
+            Sub-I(s): <input type="text" ng-model="census.sub.A">
+          </td>
+          <td>
+            <input type="text" ng-model="census.B">
+            <input type="text" ng-model="census.sub.B">
+          </td>
+          <td>
+            <input type="text" ng-model="census.C">
+            <input type="text" ng-model="census.sub.C">
+          </td>
+          <td>
+            <input type="text" ng-model="census.Y">
+            <input type="text" ng-model="census.sub.Y">
+          </td>
         </tr>
       </tbody>
     </table>
@@ -63,7 +75,7 @@
           <td>
             <select ng-disabled="intern.role==='Sub-I'" ng-model="intern.writingFor" ng-options="team for team in noteTeams"></select>
           </td>
-          <td>{{intern.notes}}</td>
+          <td>{{intern.primaryNotes}} notes for {{intern.writingFor}} + {{intern.secondaryNotes}} notes for {{lonelyTeam}}</td>
         </tr>
       </tbody>
     </table>
