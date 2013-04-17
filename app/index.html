@@ -32,8 +32,10 @@
     <div class="control-group input-append">
       <input id="datePicker" type="text" b-datepicker="{{dateOptions}}" ng-model="datepicker.date">
       <button type="button" class="btn" ng-click="datepicker.toggle()"><i class="icon-calendar"></i></button>
-      <button class="btn btn-primary" ng-show="datepicker.date" ng-click="getOnToday()">Get On Call</button>
+      <button class="btn btn-primary" ng-show="datepicker.date" ng-click="getOnToday()">Get Note Writers</button>
     </div>
+    <br>
+    <span class="muted">Choose date of morning notes will be distributed</span>
   </div>
 </div>
 <div class="row">
