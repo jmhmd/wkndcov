@@ -1,0 +1,16 @@
+/* app css stylesheet */
+
+#alert {
+  position: fixed;
+  top: 0px;
+  left: 50%;
+}
+#alert div {
+  position: relative;
+  left: -50%;
+  font-size: 24px;
+  color: rgb(0, 0, 0);
+  padding: 20px 40px;
+  background: rgba(255, 203, 71, 0.81);
+  border-radius: 0 0 10px 10px;
+}
