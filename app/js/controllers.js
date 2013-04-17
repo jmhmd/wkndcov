@@ -83,6 +83,15 @@ angular.module('wkndcov.controllers', [])
           census = $scope.census,
           onTodayCopy = angular.copy($scope.onToday);
       
+      // give sub-i notes to them
+      angular.forEach(census.sub, function(notes,team){
+        angular.forEach($scope.onToday, function(person){
+          if(person.role === 'Sub-I' || person.writingFor === team){
+          	person.primaryNotes = notes;
+          }
+        });
+      });
+      
       // pull out teams with map, then filter out empty/unassigned
       teams = $scope.onToday.map(function(person){
         		if (person.role !== 'Sub-I' && $scope.noteTeams.indexOf(person.writingFor) > -1 && typeof person.writingFor !== 'undefined'){

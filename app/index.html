@@ -102,7 +102,7 @@
           <td>
             <select ng-disabled="intern.role==='Sub-I'||intern.team.indexOf('NF Intern')>-1" ng-model="intern.writingFor" ng-options="team for team in noteTeams"></select>
           </td>
-          <td>{{intern.primaryNotes}} notes for {{intern.writingFor}} + {{intern.secondaryNotes}} notes for {{lonelyTeam}}</td>
+          <td>{{intern.primaryNotes}} notes for {{intern.writingFor}}<span ng-show="intern.secondaryNotes > 0"> + {{intern.secondaryNotes}} notes for {{lonelyTeam}}</span></td>
         </tr>
       </tbody>
     </table>
