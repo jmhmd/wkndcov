@@ -8,7 +8,13 @@ angular.module('wkndcov.controllers', [])
       A: 0,
       B: 0,
       C: 0,
-      Y: 0
+      Y: 0,
+      sub: {
+        A: 0,
+        B: 0,
+        C: 0,
+        Y: 0
+      }
     };
     $scope.today = moment();
     $scope.datepicker = {
@@ -68,6 +74,16 @@ angular.module('wkndcov.controllers', [])
       	$scope.redistribute();
       }
     }, true);
+    
+    $scope.totalCensus = function(team){
+      var result = parseFloat($scope.census[team]) + parseFloat($scope.census.sub[team]);
+      return result || 0;
+    };
+    
+    $scope.censusStyle = function(team){
+      var c = $scope.totalCensus(team);
+      return c >= 20 ? 'alert-danger' : c > 15 ? 'alert' : 'alert-success';
+    };
     
     $scope.redistribute = function(){
       // find lonely team
@@ -245,7 +261,7 @@ angular.module('wkndcov.controllers', [])
     };
     
     $scope.getOnToday = function(){
-      var day = moment($scope.datepicker.date, 'MM/DD/YYYY'),
+      var day = typeof $scope.datepicker.date === 'object' ? moment($scope.datepicker.date) : moment($scope.datepicker.date, 'MM/DD/YYYY'),
           onCall = [],
       		postCall = [],
           relevantTeams = [

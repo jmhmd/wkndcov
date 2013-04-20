@@ -40,7 +40,7 @@
     <div ng-show="alertTxt" id="alert"><div>{{alertTxt}}</div></div>
     <h2>Date</h2>
     <div class="control-group input-append">
-      <input id="datePicker" type="text" b-datepicker="{{dateOptions}}" ng-model="datepicker.date">
+      <input id="datePicker" type="text" b-datepicker="{{dateOptions}}" ui-date-format="MM/DD/YYYY" ng-model="datepicker.date">
       <button type="button" class="btn" ng-click="datepicker.toggle()"><i class="icon-calendar"></i></button>
       <button class="btn btn-primary" ng-show="datepicker.date" ng-click="getOnToday()">Get Note Writers</button>
     </div>
@@ -91,6 +91,22 @@
           <td>
             <input class="input-mini" ng-show="hasSubI('Y')" type="text" ng-model="census.sub.Y">
           </td>
+        </tr>
+        <tr class="census">
+          <td></td>
+          <td ng-class="censusStyle('A')">
+            <strong>{{totalCensus('A')}}</strong>
+          </td>
+          <td ng-class="censusStyle('B')">
+            <strong>{{totalCensus('B')}}</strong>
+          </td>
+          <td ng-class="censusStyle('C')">
+            <strong>{{totalCensus('C')}}</strong>
+          </td>
+          <td ng-class="censusStyle('Y')">
+            <strong>{{totalCensus('Y')}}</strong>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>

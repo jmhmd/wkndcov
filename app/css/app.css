@@ -14,3 +14,7 @@
   background: rgba(255, 203, 71, 0.81);
   border-radius: 0 0 10px 10px;
 }
+tr.census td {
+  border: none;
+	padding-left: 14px;
+}
